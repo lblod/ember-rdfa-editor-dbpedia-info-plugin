@@ -46,8 +46,9 @@ export default Component.extend({
   */
   hintsRegistry: reads('info.hintsRegistry'),
 
+  // TODO Document
   willRender() {
-    const url = new URL("http://dbpedia.org/sparql")
+    const url = new URL("http://dbpedia.org/sparql");
     const query = `
       SELECT ?description ?image WHERE {
         ?s rdfs:label "${this.info.term}"@en.
@@ -59,12 +60,14 @@ export default Component.extend({
           ?s <http://dbpedia.org/ontology/thumbnail> ?image.
         }
       }
-    `
+    `;
     const params = {
       format: "application/sparql-results+json",
       query,
-    }
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+    };
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+    // TODO Use await syntax as in the other plugin if you like it
     fetch(url)
       .then((response) => response.json())
       .then((json) => {
@@ -74,6 +77,7 @@ export default Component.extend({
   },
 
   actions: {
+    // TODO Document
     insert(){
       this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/dbpedia-fetcher-card');
       const mappedLocation = this.get('hintsRegistry').updateLocationToCurrentIndex(this.get('hrId'), this.get('location'));
