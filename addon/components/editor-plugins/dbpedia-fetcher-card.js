@@ -53,7 +53,7 @@ export default Component.extend({
       SELECT ?description ?image WHERE {
         ?s rdfs:label "${this.info.term}"@en.
         OPTIONAL {
-          ?s <http://www.w3.org/2000/01/rdf-schema#comment> ?description;
+          ?s <http://www.w3.org/2000/01/rdf-schema#comment> ?description.
           FILTER (lang(?description) = 'en')
         }
         OPTIONAL {
