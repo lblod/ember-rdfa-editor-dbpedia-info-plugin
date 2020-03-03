@@ -1,4 +1,4 @@
-ember-rdfa-editor-dbpedia-fetcher-plugin
+ember-rdfa-editor-dbpedia-info-plugin
 ==============================================================================
 
 [Short description of the addon.]
@@ -16,7 +16,7 @@ Installation
 ------------------------------------------------------------------------------
 
 ```
-ember install ember-rdfa-editor-dbpedia-fetcher-plugin
+ember install ember-rdfa-editor-dbpedia-info-plugin
 ```
 
 

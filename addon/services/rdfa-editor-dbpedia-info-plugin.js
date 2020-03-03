@@ -6,7 +6,7 @@ import { task } from 'ember-concurrency';
 /**
  * Service responsible for correct annotation of dates
  *
- * @module editor-dbpedia-fetcher-plugin
+ * @module editor-dbpedia-info-plugin
  * @class RdfaEditorDbpediaFetcherPlugin
  * @constructor
  * @extends EmberService
@@ -139,6 +139,6 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
 });
 
 RdfaEditorDbpediaFetcherPlugin.reopen({
-  who: 'editor-plugins/dbpedia-fetcher-card'
+  who: 'editor-plugins/dbpedia-info-card'
 });
 export default RdfaEditorDbpediaFetcherPlugin;

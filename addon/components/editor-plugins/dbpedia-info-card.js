@@ -1,11 +1,11 @@
 import { reads } from '@ember/object/computed';
 import Component from '@ember/component';
-import layout from '../../templates/components/editor-plugins/dbpedia-fetcher-card';
+import layout from '../../templates/components/editor-plugins/dbpedia-info-card';
 
 /**
 * Card displaying a hint of the Date plugin
 *
-* @module editor-dbpedia-fetcher-plugin
+* @module editor-dbpedia-info-plugin
 * @class DbpediaFetcherCard
 * @extends Ember.Component
 */

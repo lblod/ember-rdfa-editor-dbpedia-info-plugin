@@ -3,7 +3,7 @@
 ## Installation
 
 * `git clone <repository-url>`
-* `cd ember-rdfa-editor-dbpedia-fetcher-plugin`
+* `cd ember-rdfa-editor-dbpedia-info-plugin`
 * `npm install`
 
 ## Linting
