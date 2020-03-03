@@ -54,7 +54,7 @@ export default Component.extend({
       SELECT ?description ?image WHERE {
         ?s rdfs:label "${this.info.term}"@en.
         OPTIONAL {
-          ?s <http://www.w3.org/2000/01/rdf-schema#comment> ?description;
+          ?s <http://www.w3.org/2000/01/rdf-schema#comment> ?description.
           FILTER (lang(?description) = 'en')
         }
         OPTIONAL {
@@ -69,7 +69,13 @@ export default Component.extend({
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
     const response = await fetch(url)
     const json = await response.json()
-    this.set('description', json.results.bindings[0].description.value)
-    this.set('image', json.results.bindings[0].image.value)
+    const info = json.results.bindings[0]
+    if(info.description) {
+      this.set('description', info.description.value)
+    }
+    if(info.image) {
+      this.set('image', info.image.value)
+    }
+    
   },
 });
