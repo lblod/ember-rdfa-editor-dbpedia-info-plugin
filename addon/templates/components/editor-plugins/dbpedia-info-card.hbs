@@ -1,7 +1,9 @@
-<p class="u-spacer--tiny">{{info.label}} <br>
-  <img src={{this.image}} />
-  <p>{{this.description}}</p>
-</p>
+<div class="modal-dialog__content">
+  <p class="u-spacer--tiny">{{info.label}} <br>
+    <img src={{this.image}} />
+    <p>{{this.description}}</p>
+  </p>
+</div>
 
 {{#wu-button-group}}
   {{wu-button label="Accept" size="small" isNarrow=true command="ctrl + j" commandLocation="below" onClick=(action "insert")}}
