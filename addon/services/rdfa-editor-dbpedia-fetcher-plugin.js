@@ -31,19 +31,25 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    * @public
    */
   execute: task(function * (hrId, contexts, hintsRegistry, editor) {
-    // TODO Document step by step
+    //We check if we have new contexts 
     if (contexts.length === 0) return [];
 
     const hints = [];
+
     contexts.forEach((context) => {
+      //For each of the context we detect if it's relevant to our plugin
       let relevantContext = this.detectRelevantContext(context);
       if (relevantContext) {
+        // If the context is relevant we remove other hints associated to that context
         hintsRegistry.removeHintsInRegion(context.region, hrId, this.get('who'));
+        // And generate a new hint
         hints.pushObjects(this.generateHintsForContext(context));
       }
     });
+    // For each of the hints we generate a new card
     const cards = hints.map( (hint) => this.generateCard(hrId, hintsRegistry, editor, hint));
     if(cards.length > 0) {
+      // We add the new cards to the hint registry
       hintsRegistry.addHints(hrId, this.get('who'), cards);
     }
     yield 1;
