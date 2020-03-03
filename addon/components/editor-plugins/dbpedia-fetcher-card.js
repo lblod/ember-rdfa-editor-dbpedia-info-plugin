@@ -46,8 +46,10 @@ export default Component.extend({
   */
   hintsRegistry: reads('info.hintsRegistry'),
 
-  willRender() {
-    const url = new URL("http://dbpedia.org/sparql")
+  // willRender method will get executed just before the card appears on the
+  // screen, we use this method to fetch the information needed from dbpedia
+  async willRender() {
+    const url = new URL("http://dbpedia.org/sparql");
     const query = `
       SELECT ?description ?image WHERE {
         ?s rdfs:label "${this.info.term}"@en.
@@ -59,25 +61,21 @@ export default Component.extend({
           ?s <http://dbpedia.org/ontology/thumbnail> ?image.
         }
       }
-    `
+    `;
     const params = {
       format: "application/sparql-results+json",
       query,
+    };
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    const response = await fetch(url)
+    const json = await response.json()
+    const info = json.results.bindings[0]
+    if(info.description) {
+      this.set('description', info.description.value)
     }
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
-    fetch(url)
-      .then((response) => response.json())
-      .then((json) => {
-        this.set('description', json.results.bindings[0].description.value)
-        this.set('image', json.results.bindings[0].image.value)
-      })
+    if(info.image) {
+      this.set('image', info.image.value)
+    }
+    
   },
-
-  actions: {
-    insert(){
-      this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/dbpedia-fetcher-card');
-      const mappedLocation = this.get('hintsRegistry').updateLocationToCurrentIndex(this.get('hrId'), this.get('location'));
-      this.get('editor').replaceTextWithHTML(...mappedLocation, this.get('info').htmlString);
-    }
-  }
 });

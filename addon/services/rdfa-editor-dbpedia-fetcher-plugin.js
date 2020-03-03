@@ -1,6 +1,6 @@
 import { getOwner } from '@ember/application';
 import Service from '@ember/service';
-import EmberObject, { computed } from '@ember/object';
+import EmberObject from '@ember/object';
 import { task } from 'ember-concurrency';
 
 /**
@@ -13,7 +13,7 @@ import { task } from 'ember-concurrency';
  */
 const RdfaEditorDbpediaFetcherPlugin = Service.extend({
 
-  init(){
+  init() {
     this._super(...arguments);
     const config = getOwner(this).resolveRegistration('config:environment');
   },
@@ -31,18 +31,25 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    * @public
    */
   execute: task(function * (hrId, contexts, hintsRegistry, editor) {
+    //We check if we have new contexts 
     if (contexts.length === 0) return [];
 
     const hints = [];
+
     contexts.forEach((context) => {
-      let relevantContext = this.detectRelevantContext(context)
+      //For each of the context we detect if it's relevant to our plugin
+      let relevantContext = this.detectRelevantContext(context);
       if (relevantContext) {
+        // If the context is relevant we remove other hints associated to that context
         hintsRegistry.removeHintsInRegion(context.region, hrId, this.get('who'));
+        // And generate a new hint
         hints.pushObjects(this.generateHintsForContext(context));
       }
     });
+    // For each of the hints we generate a new card
     const cards = hints.map( (hint) => this.generateCard(hrId, hintsRegistry, editor, hint));
-    if(cards.length > 0){
+    if(cards.length > 0) {
+      // We add the new cards to the hint registry
       hintsRegistry.addHints(hrId, this.get('who'), cards);
     }
     yield 1;
@@ -59,8 +66,8 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    *
    * @private
    */
-  detectRelevantContext(context){
-    return context.semanticNode.rdfaAttributes && context.semanticNode.rdfaAttributes._property == 'rdf:seeAlso'
+  detectRelevantContext(context) {
+    return context.semanticNode.rdfaAttributes && context.semanticNode.rdfaAttributes._property == 'rdf:seeAlso';
   },
 
 
@@ -77,7 +84,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    *
    * @private
    */
-  normalizeLocation(location, reference){
+  normalizeLocation(location, reference) {
     return [location[0] + reference[0], location[1] + reference[0]];
   },
 
@@ -123,9 +130,9 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
   generateHintsForContext(context){
     const hints = [];
     const textTrimmed = context.text.replace(/\s*$/,"");
-    const spacesAtTheStart = textTrimmed.length - context.text.trim().length
-    const location = [(context.start + spacesAtTheStart), (context.start + spacesAtTheStart) + textTrimmed.length]
-    const term = decodeURI(context.semanticNode.rdfaAttributes._href.split('/').pop())
+    const spacesAtTheStart = textTrimmed.length - context.text.trim().length;
+    const location = [(context.start + spacesAtTheStart), (context.start + spacesAtTheStart) + textTrimmed.length];
+    const term = decodeURI(context.semanticNode.rdfaAttributes._href.split('/').pop());
     hints.push({term, location});
     return hints;
   }
