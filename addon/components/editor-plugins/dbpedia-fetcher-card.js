@@ -46,14 +46,15 @@ export default Component.extend({
   */
   hintsRegistry: reads('info.hintsRegistry'),
 
-  // TODO Document
-  willRender() {
+  // willRender method will get executed just before the card appears on the
+  // screen, we use this method to fetch the information needed from dbpedia
+  async willRender() {
     const url = new URL("http://dbpedia.org/sparql");
     const query = `
       SELECT ?description ?image WHERE {
         ?s rdfs:label "${this.info.term}"@en.
         OPTIONAL {
-          ?s <http://www.w3.org/2000/01/rdf-schema#comment> ?description.
+          ?s <http://www.w3.org/2000/01/rdf-schema#comment> ?description;
           FILTER (lang(?description) = 'en')
         }
         OPTIONAL {
@@ -66,22 +67,9 @@ export default Component.extend({
       query,
     };
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-
-    // TODO Use await syntax as in the other plugin if you like it
-    fetch(url)
-      .then((response) => response.json())
-      .then((json) => {
-        this.set('description', json.results.bindings[0].description.value)
-        this.set('image', json.results.bindings[0].image.value)
-      })
+    const response = await fetch(url)
+    const json = await response.json()
+    this.set('description', json.results.bindings[0].description.value)
+    this.set('image', json.results.bindings[0].image.value)
   },
-
-  actions: {
-    // TODO Document
-    insert(){
-      this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/dbpedia-fetcher-card');
-      const mappedLocation = this.get('hintsRegistry').updateLocationToCurrentIndex(this.get('hrId'), this.get('location'));
-      this.get('editor').replaceTextWithHTML(...mappedLocation, this.get('info').htmlString);
-    }
-  }
 });
