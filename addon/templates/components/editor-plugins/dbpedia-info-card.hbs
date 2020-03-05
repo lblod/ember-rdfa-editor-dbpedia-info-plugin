@@ -1,13 +1,11 @@
 <div class="modal-dialog__content">
   <div class="wiki-content">
     <h2>{{info.label}}</h2>
-    <img src={{this.image}} />
+    {{#if this.image}}
+      <img alt="Wikipedia image" src={{this.image}}>
+    {{/if}}
     <p>{{this.description}}</p>
   </div>
 </div>
-
-{{#wu-button-group}}
-  {{wu-button label="Yes" size="small" isNarrow=true}}
-{{/wu-button-group}}
 
 {{yield}}

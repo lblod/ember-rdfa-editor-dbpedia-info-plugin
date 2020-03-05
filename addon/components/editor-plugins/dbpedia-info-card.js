@@ -67,15 +67,16 @@ export default Component.extend({
       query,
     };
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-    const response = await fetch(url)
-    const json = await response.json()
-    const info = json.results.bindings[0]
-    if(info.description) {
-      this.set('description', info.description.value)
+    const response = await fetch(url);
+    const json = await response.json();
+    const info = json.results.bindings[0];
+
+    if (info.description) {
+      this.set('description', info.description.value);
     }
-    if(info.image) {
-      this.set('image', info.image.value)
+
+    if (info.image) {
+      this.set('image', info.image.value);
     }
-    
   },
 });
