@@ -1,4 +1,3 @@
-import { getOwner } from '@ember/application';
 import Service from '@ember/service';
 import EmberObject from '@ember/object';
 import { task } from 'ember-concurrency';
@@ -12,11 +11,6 @@ import { task } from 'ember-concurrency';
  * @extends EmberService
  */
 const RdfaEditorDbpediaFetcherPlugin = Service.extend({
-
-  init() {
-    this._super(...arguments);
-    const config = getOwner(this).resolveRegistration('config:environment');
-  },
 
   /**
    * task to handle the incoming events from the editor dispatcher
