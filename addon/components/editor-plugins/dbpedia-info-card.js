@@ -1,6 +1,7 @@
 import { reads } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from '../../templates/components/editor-plugins/dbpedia-info-card';
+import fetch from 'fetch';
 
 /**
 * Card displaying a hint of the Date plugin
