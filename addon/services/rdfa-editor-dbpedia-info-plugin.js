@@ -27,7 +27,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @public
    */
   @task
-  *execute(hrId, contexts, hintsRegistry, editor){
+  *execute(hrId, contexts, hintsRegistry, _editor){
     // We check if we have new contexts
     if (contexts.length === 0) return [];
 
@@ -44,7 +44,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
       }
     });
     // For each of the hints we generate a new card
-    const cards = hints.map( (hint) => this.generateCard(hrId, hintsRegistry, editor, hint));
+    const cards = hints.map( (hint) => this.generateCard(hint));
     if(cards.length > 0) {
       // We add the new cards to the hint registry
       hintsRegistry.addHints(hrId, COMPONENT_ID, cards);
@@ -87,16 +87,13 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    *
    * @method generateCard
    *
-   * @param {string} hrId Unique identifier of the event in the hintsRegistry
-   * @param {Object} hintsRegistry Registry of hints in the editor
-   * @param {Object} editor The RDFa editor instance
    * @param {Object} hint containing the hinted string and the location of this string
    *
    * @return {Object} The card to hint for a given template
    *
    * @private
    */
-  generateCard(hrId, hintsRegistry, editor, hint){
+  generateCard(hint){
     return EmberObject.create({
       info: {
         term: hint.term,
