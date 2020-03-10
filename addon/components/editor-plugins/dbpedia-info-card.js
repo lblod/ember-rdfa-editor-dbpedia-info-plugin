@@ -1,5 +1,5 @@
-import Component from '@ember/component';
-import layout from '../../templates/components/editor-plugins/dbpedia-info-card';
+import { tracked } from '@glimmer/tracking';
+import Component from '@glimmer/component';
 import dbpediaQuery from '../../utils/editor-plugins/dbpedia-query';
 
 /**
@@ -9,16 +9,23 @@ import dbpediaQuery from '../../utils/editor-plugins/dbpedia-query';
 * @class DbpediaFetcherCard
 * @extends Ember.Component
 */
-export default Component.extend({
-  layout,
+export default class DbpediaInfoCardComponent extends Component {
+  @tracked
+  description = "";
 
-  description: '',
-  image: '',
+  @tracked
+  image = null;
+
+  constructor(){
+    super(...arguments);
+    this.getDbpediaInfo();
+  }
 
   // willRender method will get executed just before the card appears on the
   // screen, we use this method to fetch the information needed from dbpedia
-  async willRender() {
-    const foundInfo = await dbpediaQuery( this.info.term );
-    this.setProperties( foundInfo );
-  },
-});
+  async getDbpediaInfo() {
+    const { image, description } = await dbpediaQuery( this.args.info.term );
+    this.image = image;
+    this.description = description;
+  }
+}
