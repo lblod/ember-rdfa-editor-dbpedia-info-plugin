@@ -1,7 +1,5 @@
-import { reads } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from '../../templates/components/editor-plugins/dbpedia-info-card';
-import fetch from 'fetch';
 import dbpediaQuery from '../../utils/editor-plugins/dbpedia-query';
 
 /**
@@ -16,14 +14,6 @@ export default Component.extend({
 
   description: '',
   image: '',
-
-  /**
-   * Hints registry storing the cards
-   * @property hintsRegistry
-   * @type HintsRegistry
-   * @private
-  */
-  hintsRegistry: reads('info.hintsRegistry'),
 
   // willRender method will get executed just before the card appears on the
   // screen, we use this method to fetch the information needed from dbpedia
