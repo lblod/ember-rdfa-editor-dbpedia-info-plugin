@@ -106,7 +106,8 @@ export default class RdfaEditorDbpediaPluginService extends Service {
         hrId, hintsRegistry, editor
       },
       location: hint.location,
-      card: COMPONENT_ID
+      card: COMPONENT_ID,
+      options: { noHighlight: true }
     });
   }
 
