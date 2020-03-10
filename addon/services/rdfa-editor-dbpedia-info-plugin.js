@@ -1,3 +1,4 @@
+import { get } from '@ember/object';
 import Service from '@ember/service';
 import EmberObject from '@ember/object';
 import { task } from 'ember-concurrency-decorators';
@@ -63,7 +64,8 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @private
    */
   detectRelevantContext(context) {
-    return context.semanticNode.rdfaAttributes && context.semanticNode.rdfaAttributes._property == 'rdf:seeAlso';
+    return get( context, "context.lastObject.object" )
+      && context.context.lastObject.object.startsWith("https://en.wikipedia.org/wiki/");
   }
 
   /**
@@ -120,7 +122,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
     const textTrimmed = context.text.replace(/\s*$/,"");
     const spacesAtTheStart = textTrimmed.length - context.text.trim().length;
     const location = [(context.start + spacesAtTheStart), (context.start + spacesAtTheStart) + textTrimmed.length];
-    const term = decodeURI(context.semanticNode.rdfaAttributes._href.split('/').pop());
+    const term = context.context.lastObject.object.split('/').pop();
     hints.push({term, location});
     return hints;
   }
