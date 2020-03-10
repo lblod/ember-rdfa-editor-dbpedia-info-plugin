@@ -99,11 +99,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
   generateCard(hrId, hintsRegistry, editor, hint){
     return EmberObject.create({
       info: {
-        label: COMPONENT_ID,
         term: hint.term,
-        htmlString: '<b>hello world</b>',
-        location: hint.location,
-        hrId, hintsRegistry, editor
       },
       location: hint.location,
       card: COMPONENT_ID,
