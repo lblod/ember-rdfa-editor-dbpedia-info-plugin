@@ -1,6 +1,8 @@
 import Service from '@ember/service';
 import EmberObject from '@ember/object';
-import { task } from 'ember-concurrency';
+import { task } from 'ember-concurrency-decorators';
+
+const COMPONENT_ID = 'editor-plugins/dbpedia-info-card';
 
 /**
  * Service responsible for correct annotation of dates
@@ -11,7 +13,6 @@ import { task } from 'ember-concurrency';
  * @extends EmberService
  */
 export default class RdfaEditorDbpediaPluginService extends Service {
-  who = 'editor-plugins/dbpedia-info-card';
 
   /**
    * task to handle the incoming events from the editor dispatcher
@@ -37,7 +38,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
       let relevantContext = this.detectRelevantContext(context);
       if (relevantContext) {
         // If the context is relevant we remove other hints associated to that context
-        hintsRegistry.removeHintsInRegion(context.region, hrId, this.get('who'));
+        hintsRegistry.removeHintsInRegion(context.region, hrId, COMPONENT_ID);
         // And generate a new hint
         hints.pushObjects(this.generateHintsForContext(context));
       }
@@ -46,7 +47,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
     const cards = hints.map( (hint) => this.generateCard(hrId, hintsRegistry, editor, hint));
     if(cards.length > 0) {
       // We add the new cards to the hint registry
-      hintsRegistry.addHints(hrId, this.get('who'), cards);
+      hintsRegistry.addHints(hrId, COMPONENT_ID, cards);
     }
   }
 
@@ -98,14 +99,14 @@ export default class RdfaEditorDbpediaPluginService extends Service {
   generateCard(hrId, hintsRegistry, editor, hint){
     return EmberObject.create({
       info: {
-        label: this.get('who'),
+        label: COMPONENT_ID,
         term: hint.term,
         htmlString: '<b>hello world</b>',
         location: hint.location,
         hrId, hintsRegistry, editor
       },
       location: hint.location,
-      card: this.get('who')
+      card: COMPONENT_ID
     });
   }
 
