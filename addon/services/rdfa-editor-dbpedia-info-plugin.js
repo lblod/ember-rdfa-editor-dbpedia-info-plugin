@@ -119,10 +119,11 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    */
   generateHintsForContext(context){
     const hints = [];
-    const textTrimmed = context.text.replace(/\s*$/,"");
-    const spacesAtTheStart = textTrimmed.length - context.text.trim().length;
+    const contextText = context.text + "";
+    const textTrimmed = contextText.replace(/\s*$/,"");
+    const spacesAtTheStart = textTrimmed.length - contextText.trim().length;
     const location = [(context.start + spacesAtTheStart), (context.start + spacesAtTheStart) + textTrimmed.length];
-    const term = context.context.lastObject.object.split('/').pop();
+    const term = decodeURIComponent(context.context.lastObject.object.split('/').pop());
     hints.push({term, location});
     return hints;
   }
