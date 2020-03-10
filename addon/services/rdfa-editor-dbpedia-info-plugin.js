@@ -10,7 +10,8 @@ import { task } from 'ember-concurrency';
  * @constructor
  * @extends EmberService
  */
-const RdfaEditorDbpediaFetcherPlugin = Service.extend({
+export default class RdfaEditorDbpediaPluginService extends Service {
+  who = 'editor-plugins/dbpedia-info-card';
 
   /**
    * task to handle the incoming events from the editor dispatcher
@@ -24,7 +25,8 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    *
    * @public
    */
-  execute: task(function * (hrId, contexts, hintsRegistry, editor) {
+  @task
+  *execute(hrId, contexts, hintsRegistry, editor){
     // We check if we have new contexts
     if (contexts.length === 0) return [];
 
@@ -46,8 +48,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
       // We add the new cards to the hint registry
       hintsRegistry.addHints(hrId, this.get('who'), cards);
     }
-    return undefined;
-  }),
+  }
 
   /**
    * Given context object, tries to detect a context the plugin can work on
@@ -62,9 +63,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    */
   detectRelevantContext(context) {
     return context.semanticNode.rdfaAttributes && context.semanticNode.rdfaAttributes._property == 'rdf:seeAlso';
-  },
-
-
+  }
 
   /**
    * Maps location of substring back within reference location
@@ -80,7 +79,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    */
   normalizeLocation(location, reference) {
     return [location[0] + reference[0], location[1] + reference[0]];
-  },
+  }
 
   /**
    * Generates a card given a hint
@@ -108,7 +107,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
       location: hint.location,
       card: this.get('who')
     });
-  },
+  }
 
   /**
    * Generates a hint, given a context
@@ -130,9 +129,4 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
     hints.push({term, location});
     return hints;
   }
-});
-
-RdfaEditorDbpediaFetcherPlugin.reopen({
-  who: 'editor-plugins/dbpedia-info-card'
-});
-export default RdfaEditorDbpediaFetcherPlugin;
+}
