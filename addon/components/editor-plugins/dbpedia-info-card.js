@@ -47,14 +47,14 @@ export default Component.extend({
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
     const response = await fetch(url);
     const json = await response.json();
-    const info = json.results.bindings[0];
+    const sparqlResult = json.results.bindings[0];
 
-    if (info.description) {
-      this.set('description', info.description.value);
+    if (sparqlResult.description) {
+      this.set('description', sparqlResult.description.value);
     }
 
-    if (info.image) {
-      this.set('image', info.image.value);
+    if (sparqlResult.image) {
+      this.set('image', sparqlResult.image.value);
     }
   },
 });
