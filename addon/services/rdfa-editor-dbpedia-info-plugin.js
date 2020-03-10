@@ -25,7 +25,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    * @public
    */
   execute: task(function * (hrId, contexts, hintsRegistry, editor) {
-    //We check if we have new contexts 
+    // We check if we have new contexts
     if (contexts.length === 0) return [];
 
     const hints = [];
@@ -46,7 +46,7 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
       // We add the new cards to the hint registry
       hintsRegistry.addHints(hrId, this.get('who'), cards);
     }
-    yield 1;
+    return undefined;
   }),
 
   /**
