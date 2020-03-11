@@ -37,13 +37,12 @@ export default class RdfaEditorDbpediaPluginService extends Service {
       hintsRegistry.removeHintsInRegion(rdfaBlock.region, hrId, COMPONENT_ID);
 
       if (this.isWikipediaLink( rdfaBlock )) {
-        // And generate a new hint
         const newHint = this.generateHintCard( rdfaBlock );
         hints.pushObject( newHint );
       }
     }
 
-    // We add the new cards to the hint registry
+    // adding hints must occur in a separate loop from removing hints
     hintsRegistry.addHints(hrId, COMPONENT_ID, hints);
   }
 
@@ -53,8 +52,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @method isWikipediaLink
    *
    * @param {Object} rdfaBlock Context instance with an array of embedded contexts.
-   *
-   * @return {String} Truethy if the deepest nested object is a semantic wikipedia link.
+   * @return {boolean} Truethy if the deepest nested object is a semantic wikipedia link.
    *
    * @private
    */
@@ -69,7 +67,6 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @method generateHintCard
    *
    * @param {Object} rdfaBlock containing the hinted string and the location of this string
-   *
    * @return {Object} The card to hint for a given template
    *
    * @private
