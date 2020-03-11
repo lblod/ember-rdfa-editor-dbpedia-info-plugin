@@ -28,6 +28,7 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @public
    */
   @task
+  // eslint-disable-next-line require-yield
   *execute(hrId, rdfaBlocks, hintsRegistry, _editor){
     const hints = [];
 
