@@ -74,17 +74,13 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @private
    */
   generateHintCard(rdfaBlock){
-    const rdfaBlockText = rdfaBlock.text + "";
-    const textTrimmed = rdfaBlockText.replace(/\s*$/,"");
-    const spacesAtTheStart = textTrimmed.length - rdfaBlockText.trim().length;
-    const location = [(rdfaBlock.start + spacesAtTheStart), (rdfaBlock.start + spacesAtTheStart) + textTrimmed.length];
     const term = decodeURIComponent(rdfaBlock.context.lastObject.object.split('/').pop());
 
     return EmberObject.create({
       info: { term },
-      location,
       card: COMPONENT_ID,
-      options: { noHighlight: true }
+      location: [rdfaBlock.start, rdfaBlock.end],
+      options: { noHighlight: true },
     });
   }
 }
