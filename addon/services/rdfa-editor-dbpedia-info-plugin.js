@@ -28,103 +28,63 @@ export default class RdfaEditorDbpediaPluginService extends Service {
    * @public
    */
   @task
-  *execute(hrId, contexts, hintsRegistry, _editor){
-    // We check if we have new contexts
-    if (contexts.length === 0) return [];
-
+  *execute(hrId, rdfaBlocks, hintsRegistry, _editor){
     const hints = [];
 
-    contexts.forEach((context) => {
-      //For each of the context we detect if it's relevant to our plugin
-      let relevantContext = this.detectRelevantContext(context);
-      if (relevantContext) {
-        // If the context is relevant we remove other hints associated to that context
-        hintsRegistry.removeHintsInRegion(context.region, hrId, COMPONENT_ID);
+    for( const rdfaBlock of rdfaBlocks ) {
+      // using the removal here requires us to add hints in a separate loop.
+      hintsRegistry.removeHintsInRegion(rdfaBlock.region, hrId, COMPONENT_ID);
+
+      if (this.isWikipediaLink( rdfaBlock )) {
         // And generate a new hint
-        hints.pushObjects(this.generateHintsForContext(context));
+        const newHint = this.generateHintCard( rdfaBlock );
+        hints.pushObject( newHint );
       }
-    });
-    // For each of the hints we generate a new card
-    const cards = hints.map( (hint) => this.generateCard(hint));
-    if(cards.length > 0) {
-      // We add the new cards to the hint registry
-      hintsRegistry.addHints(hrId, COMPONENT_ID, cards);
     }
+
+    // We add the new cards to the hint registry
+    hintsRegistry.addHints(hrId, COMPONENT_ID, hints);
   }
 
   /**
-   * Given context object, tries to detect a context the plugin can work on
+   * Given context object, detects if it is a reference to a wikipedia article
    *
-   * @method detectRelevantContext
+   * @method isWikipediaLink
    *
-   * @param {Object} context Text snippet at a specific location with an RDFa context
+   * @param {Object} rdfaBlock Context instance with an array of embedded contexts.
    *
-   * @return {String} URI of context if found, else empty string.
-   *
-   * @private
-   */
-  detectRelevantContext(context) {
-    return get( context, "context.lastObject.object" )
-      && context.context.lastObject.object.startsWith("https://en.wikipedia.org/wiki/");
-  }
-
-  /**
-   * Maps location of substring back within reference location
-   *
-   * @method normalizeLocation
-   *
-   * @param {[int,int]} [start, end] Location withing string
-   * @param {[int,int]} [start, end] reference location
-   *
-   * @return {[int,int]} [start, end] absolute location
+   * @return {String} Truethy if the deepest nested object is a semantic wikipedia link.
    *
    * @private
    */
-  normalizeLocation(location, reference) {
-    return [location[0] + reference[0], location[1] + reference[0]];
+  isWikipediaLink(rdfaBlock) {
+    return (get( rdfaBlock, "context.lastObject.object" ) || "")
+      .startsWith("https://en.wikipedia.org/wiki/");
   }
 
   /**
    * Generates a card given a hint
    *
-   * @method generateCard
+   * @method generateHintCard
    *
-   * @param {Object} hint containing the hinted string and the location of this string
+   * @param {Object} rdfaBlock containing the hinted string and the location of this string
    *
    * @return {Object} The card to hint for a given template
    *
    * @private
    */
-  generateCard(hint){
+  generateHintCard(rdfaBlock){
+    const rdfaBlockText = rdfaBlock.text + "";
+    const textTrimmed = rdfaBlockText.replace(/\s*$/,"");
+    const spacesAtTheStart = textTrimmed.length - rdfaBlockText.trim().length;
+    const location = [(rdfaBlock.start + spacesAtTheStart), (rdfaBlock.start + spacesAtTheStart) + textTrimmed.length];
+    const term = decodeURIComponent(rdfaBlock.context.lastObject.object.split('/').pop());
+
     return EmberObject.create({
-      info: {
-        term: hint.term,
-      },
-      location: hint.location,
+      info: { term },
+      location,
       card: COMPONENT_ID,
       options: { noHighlight: true }
     });
-  }
-
-  /**
-   * Generates a hint, given a context
-   *
-   * @method generateHintsForContext
-   *
-   * @param {Object} context Text snippet at a specific location with an RDFa context
-   *
-   * @return {Object} [{dateString, location}]
-   *
-   * @private
-   */
-  generateHintsForContext(context){
-    const hints = [];
-    const contextText = context.text + "";
-    const textTrimmed = contextText.replace(/\s*$/,"");
-    const spacesAtTheStart = textTrimmed.length - contextText.trim().length;
-    const location = [(context.start + spacesAtTheStart), (context.start + spacesAtTheStart) + textTrimmed.length];
-    const term = decodeURIComponent(context.context.lastObject.object.split('/').pop());
-    hints.push({term, location});
-    return hints;
   }
 }
