@@ -1,6 +1,6 @@
 import { tracked } from '@glimmer/tracking';
 import Component from '@glimmer/component';
-import dbpediaQuery from '../../utils/editor-plugins/dbpedia-query';
+import dbpediaQuery from '../../utils/dbpedia-query';
 
 /**
 * Card displaying a hint of the Date plugin
