@@ -1,7 +1,9 @@
-import { getOwner } from '@ember/application';
+import { get } from '@ember/object';
 import Service from '@ember/service';
 import EmberObject from '@ember/object';
-import { task } from 'ember-concurrency';
+import { task } from 'ember-concurrency-decorators';
+
+const COMPONENT_ID = 'editor-plugins/dbpedia-info-card';
 
 /**
  * Service responsible for correct annotation of dates
@@ -11,12 +13,7 @@ import { task } from 'ember-concurrency';
  * @constructor
  * @extends EmberService
  */
-const RdfaEditorDbpediaFetcherPlugin = Service.extend({
-
-  init() {
-    this._super(...arguments);
-    const config = getOwner(this).resolveRegistration('config:environment');
-  },
+export default class RdfaEditorDbpediaPluginService extends Service {
 
   /**
    * task to handle the incoming events from the editor dispatcher
@@ -30,115 +27,58 @@ const RdfaEditorDbpediaFetcherPlugin = Service.extend({
    *
    * @public
    */
-  execute: task(function * (hrId, contexts, hintsRegistry, editor) {
-    //We check if we have new contexts 
-    if (contexts.length === 0) return [];
-
+  @task
+  // eslint-disable-next-line require-yield
+  *execute(hrId, rdfaBlocks, hintsRegistry, _editor){
     const hints = [];
 
-    contexts.forEach((context) => {
-      //For each of the context we detect if it's relevant to our plugin
-      let relevantContext = this.detectRelevantContext(context);
-      if (relevantContext) {
-        // If the context is relevant we remove other hints associated to that context
-        hintsRegistry.removeHintsInRegion(context.region, hrId, this.get('who'));
-        // And generate a new hint
-        hints.pushObjects(this.generateHintsForContext(context));
+    for( const rdfaBlock of rdfaBlocks ) {
+      // using the removal here requires us to add hints in a separate loop.
+      hintsRegistry.removeHintsInRegion(rdfaBlock.region, hrId, COMPONENT_ID);
+
+      if (this.isWikipediaLink( rdfaBlock )) {
+        const newHint = this.generateHintCard( rdfaBlock );
+        hints.pushObject( newHint );
       }
-    });
-    // For each of the hints we generate a new card
-    const cards = hints.map( (hint) => this.generateCard(hrId, hintsRegistry, editor, hint));
-    if(cards.length > 0) {
-      // We add the new cards to the hint registry
-      hintsRegistry.addHints(hrId, this.get('who'), cards);
     }
-    yield 1;
-  }),
+
+    // adding hints must occur in a separate loop from removing hints
+    hintsRegistry.addHints(hrId, COMPONENT_ID, hints);
+  }
 
   /**
-   * Given context object, tries to detect a context the plugin can work on
+   * Given context object, detects if it is a reference to a wikipedia article
    *
-   * @method detectRelevantContext
+   * @method isWikipediaLink
    *
-   * @param {Object} context Text snippet at a specific location with an RDFa context
-   *
-   * @return {String} URI of context if found, else empty string.
+   * @param {Object} rdfaBlock Context instance with an array of embedded contexts.
+   * @return {boolean} Truethy if the deepest nested object is a semantic wikipedia link.
    *
    * @private
    */
-  detectRelevantContext(context) {
-    return context.semanticNode.rdfaAttributes && context.semanticNode.rdfaAttributes._property == 'rdf:seeAlso';
-  },
-
-
-
-  /**
-   * Maps location of substring back within reference location
-   *
-   * @method normalizeLocation
-   *
-   * @param {[int,int]} [start, end] Location withing string
-   * @param {[int,int]} [start, end] reference location
-   *
-   * @return {[int,int]} [start, end] absolute location
-   *
-   * @private
-   */
-  normalizeLocation(location, reference) {
-    return [location[0] + reference[0], location[1] + reference[0]];
-  },
+  isWikipediaLink(rdfaBlock) {
+    return (get( rdfaBlock, "context.lastObject.object" ) || "")
+      .startsWith("https://en.wikipedia.org/wiki/");
+  }
 
   /**
    * Generates a card given a hint
    *
-   * @method generateCard
+   * @method generateHintCard
    *
-   * @param {string} hrId Unique identifier of the event in the hintsRegistry
-   * @param {Object} hintsRegistry Registry of hints in the editor
-   * @param {Object} editor The RDFa editor instance
-   * @param {Object} hint containing the hinted string and the location of this string
-   *
+   * @param {Object} rdfaBlock containing the hinted string and the location of this string
    * @return {Object} The card to hint for a given template
    *
    * @private
    */
-  generateCard(hrId, hintsRegistry, editor, hint){
-    return EmberObject.create({
-      info: {
-        label: this.get('who'),
-        term: hint.term,
-        htmlString: '<b>hello world</b>',
-        location: hint.location,
-        hrId, hintsRegistry, editor
-      },
-      location: hint.location,
-      card: this.get('who')
-    });
-  },
+  generateHintCard(rdfaBlock){
+    const term = decodeURIComponent(rdfaBlock.context.lastObject.object.split('/').pop());
 
-  /**
-   * Generates a hint, given a context
-   *
-   * @method generateHintsForContext
-   *
-   * @param {Object} context Text snippet at a specific location with an RDFa context
-   *
-   * @return {Object} [{dateString, location}]
-   *
-   * @private
-   */
-  generateHintsForContext(context){
-    const hints = [];
-    const textTrimmed = context.text.replace(/\s*$/,"");
-    const spacesAtTheStart = textTrimmed.length - context.text.trim().length;
-    const location = [(context.start + spacesAtTheStart), (context.start + spacesAtTheStart) + textTrimmed.length];
-    const term = decodeURI(context.semanticNode.rdfaAttributes._href.split('/').pop());
-    hints.push({term, location});
-    return hints;
+    return {
+      info: { term },
+      card: COMPONENT_ID,
+      location: [rdfaBlock.start, rdfaBlock.end],
+      options: { noHighlight: true },
+    };
   }
-});
-
-RdfaEditorDbpediaFetcherPlugin.reopen({
-  who: 'editor-plugins/dbpedia-info-card'
-});
-export default RdfaEditorDbpediaFetcherPlugin;
+}
